@@ -4,10 +4,10 @@
   "description": "",
   "main": "src/app.ts",
   "scripts": {
-    "prod": "node -r ts-node/register/transpile-only -r tsconfig-paths/register dist/app.js",
+    "start:prod": "node -r ts-node/register/transpile-only -r tsconfig-paths/register dist/app.js",
     "build": "tsc",
-    "predev": "rimraf dist",
-    "dev": "nodemon"
+    "prestart:dev": "rimraf dist",
+    "start:dev": "nodemon"
   },
   "keywords": [],
   "author": "",
