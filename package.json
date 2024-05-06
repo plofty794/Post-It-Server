@@ -5,7 +5,6 @@
   "main": "src/app.ts",
   "scripts": {
     "prod": "node -r ts-node/register/transpile-only -r tsconfig-paths/register dist/app.js",
-    "prebuild": "rimraf dist",
     "build": "tsc",
     "predev": "rimraf dist",
     "dev": "nodemon"
