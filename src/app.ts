@@ -12,7 +12,6 @@ import '@config/passport';
 
 const app = express();
 
-app.set('trust proxy', true);
 app.use(
   cors({
     origin: [env.DEV_CLIENT_URL, env.PROD_CLIENT_URL],
