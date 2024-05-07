@@ -1,6 +1,1 @@
-{
-  "version": 2,
-  "builds": [{ "dist": "*.js", "use": "@vercel/node" }],
-  "routes": [{ "dist": "/.*", "dest": "/" }],
-  "regions": ["sfo1"]
-}
+{ "version": 2, "rewrites": [{ "source": "/(.*)", "destination": "/dist" }] }
