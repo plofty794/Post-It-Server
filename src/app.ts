@@ -12,20 +12,18 @@ import '@config/passport';
 
 const app = express();
 
+app.set('trust proxy', true);
 app.use(
   cors({
     origin: [env.DEV_CLIENT_URL, env.PROD_CLIENT_URL],
     credentials: true,
   })
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session(sessionConfig));
-
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', postRoutes);
 
