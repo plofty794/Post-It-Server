@@ -29,7 +29,7 @@ router.get('/me', verifyUserSession, getYourProfile);
 router.get('/user/:username', verifyUserSession, getUserData);
 router.post('/login', loginRateLimit, validateData(userSignInSchema), passportAuthenticate(passport), (req, res) => {
   const randomId = crypto.randomUUID();
-  res.status(200).json({ token: `${req.user?._id}-${randomId}` });
+  res.status(200).json({ token: `${req.session.passport.user}-${randomId}` });
 });
 router.post(
   '/password-reset-code',
