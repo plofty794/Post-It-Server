@@ -1,0 +1,6 @@
+{
+  "version": 2,
+  "builds": [{ "dist": "*.js", "use": "@vercel/node" }],
+  "routes": [{ "dist": "/.*", "dest": "/" }],
+  "regions": ["sfo1"]
+}
