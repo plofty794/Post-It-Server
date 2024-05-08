@@ -1,4 +1,5 @@
-import SavedPostSchema from '@schemas/SavedPost';
+import PostSchema from '@schemas/PostSchema';
+import SavedPostSchema from '@schemas/SavedPostSchema';
 import UserSchema from '@schemas/UserSchema';
 
 export default {
@@ -25,6 +26,12 @@ export default {
 
   savePost: async (savedBy: string, postID: string) => {
     try {
+      const post = await PostSchema.findById(postID);
+
+      if (!post) {
+        throw new Error('No post found.');
+      }
+
       await SavedPostSchema.create({
         savedBy,
         post: postID,
@@ -36,7 +43,7 @@ export default {
         },
       });
 
-      return { message: 'Post has been saved.' };
+      return { message: 'Post has been saved.', savedPost: post };
     } catch (error) {
       return error as Error;
     }

@@ -1,3 +1,4 @@
+import RefreshToken from '@models/RefreshToken';
 import Users from '@models/Users';
 import { eventEmitter } from '@utils/events/events';
 import { RequestHandler } from 'express';
@@ -5,7 +6,10 @@ import createHttpError from 'http-errors';
 
 export const getYourProfile: RequestHandler = async (req, res, next) => {
   try {
-    const user = await Users.getUser(undefined, req.session.passport.user);
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const user = await Users.getUser(undefined, req.user);
     res.status(200).json(user);
   } catch (error) {
     next(error);
@@ -24,7 +28,10 @@ export const getUserData: RequestHandler = async (req, res, next) => {
 
 export const editProfile: RequestHandler = async (req, res, next) => {
   try {
-    const editedUserProfile = await Users.editProfile(req.session.passport.user, req.body);
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const editedUserProfile = await Users.editProfile(req.user, req.body);
     if (editedUserProfile instanceof Error) {
       throw createHttpError(400, editedUserProfile.message);
     } else {
@@ -37,7 +44,10 @@ export const editProfile: RequestHandler = async (req, res, next) => {
 
 export const changeAvatar: RequestHandler = async (req, res, next) => {
   try {
-    const editedUserAvatar = await Users.changeAvatar(req.session.passport.user, req.body);
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const editedUserAvatar = await Users.changeAvatar(req.user, req.body);
     if (editedUserAvatar instanceof Error) {
       throw createHttpError(400, editedUserAvatar.message);
     } else {
@@ -62,9 +72,51 @@ export const userSignUp: RequestHandler = async (req, res, next) => {
   }
 };
 
+export const userLogin: RequestHandler = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const token = await Users.logIn(email, password);
+    if (token instanceof Error) {
+      throw createHttpError(400, token.message);
+    } else {
+      res.status(200).json({ token: token.accessToken });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const userLogout: RequestHandler = async (req, res, next) => {
+  const { userID } = req.params;
+  try {
+    const token = await Users.logOut(userID);
+    if (token instanceof Error) {
+      throw createHttpError(400, token.message);
+    } else {
+      res.sendStatus(200);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshToken: RequestHandler = async (req, res, next) => {
+  const { userID } = req.params;
+  try {
+    const accessToken = await RefreshToken.refreshAccessToken(userID);
+
+    if (accessToken instanceof Error) {
+      throw createHttpError(401, accessToken.message);
+    } else {
+      res.status(200).json({ accessToken: accessToken?.accessToken });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const requestEmailVerificationCode: RequestHandler = async (req, res, next) => {
   const { email } = req.body;
-
   try {
     const verificationCode = await Users.requestEmailVerificationCode(email);
 
@@ -72,7 +124,6 @@ export const requestEmailVerificationCode: RequestHandler = async (req, res, nex
       throw createHttpError(409, verificationCode.message);
     } else {
       eventEmitter.emit('requestVerificationCode', verificationCode.userEmail, verificationCode.verificationCode);
-
       res.status(201).json({ message: 'Verification code has been sent.' });
     }
   } catch (error) {
@@ -113,11 +164,4 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-export const logOut: RequestHandler = (req, res) => {
-  req.logOut(error => {
-    if (error) throw error;
-    res.sendStatus(200);
-  });
 };

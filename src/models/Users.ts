@@ -3,8 +3,66 @@ import EmailVerificationCodes from './EmailVerificationCodes';
 import EmailVerificationCodeSchema from '@schemas/EmailVerificationCodeSchema';
 import PasswordResetCodeSchema from '@schemas/PasswordResetCodeSchema';
 import PasswordResetCodes from './PasswordResetCodes';
+import jwt, { JsonWebTokenError } from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import env from '@utils/envalid';
+import RefreshToken from './RefreshToken';
 
 export default {
+  logIn: async (email: string, password: string) => {
+    try {
+      const user = await UserSchema.findOne({ email }).select('password');
+
+      if (!user) {
+        throw new Error('User not found.');
+      }
+
+      if (user.password == null) {
+        throw new Error('Something went wong.');
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordCorrect) {
+        throw new Error('Incorrect password.');
+      }
+
+      const refreshToken = await RefreshToken.generateRefreshToken(user._id.toString());
+
+      if (refreshToken instanceof JsonWebTokenError) {
+        throw new Error(refreshToken.message);
+      }
+
+      const accessToken = jwt.sign({ payload: user._id.toString() }, env.ACCESS_TOKEN_PRIVATE, {
+        expiresIn: '15m',
+      });
+
+      return { accessToken: `${accessToken}~${user._id}` };
+    } catch (error) {
+      return error as Error;
+    }
+  },
+
+  logOut: async (userID: string) => {
+    try {
+      const user = await UserSchema.findById(userID);
+
+      if (!user) {
+        throw new Error('User not found.');
+      }
+
+      const removeRefreshToken = await RefreshToken.removeRefreshToken(userID);
+
+      if (removeRefreshToken instanceof Error) {
+        throw new Error(removeRefreshToken.message);
+      } else {
+        return removeRefreshToken;
+      }
+    } catch (error) {
+      return error as Error;
+    }
+  },
+
   requestEmailVerificationCode: async function (email: string) {
     try {
       const existingEmail = await UserSchema.findOne({ email });

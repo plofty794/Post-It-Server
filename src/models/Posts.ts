@@ -1,5 +1,5 @@
 import PostSchema from '@schemas/PostSchema';
-import SavedPostSchema from '@schemas/SavedPost';
+import SavedPostSchema from '@schemas/SavedPostSchema';
 import UserSchema from '@schemas/UserSchema';
 
 export default {

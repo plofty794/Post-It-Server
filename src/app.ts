@@ -4,11 +4,7 @@ import postRoutes from '@routes/postRoutes';
 import env from '@utils/envalid';
 import express from 'express';
 import mongoose from 'mongoose';
-import session from 'express-session';
-import sessionConfig from '@config/sessionConfig';
-import passport from 'passport';
 import cors from 'cors';
-import '@config/passport';
 
 const app = express();
 
@@ -20,9 +16,6 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(session(sessionConfig));
-app.use(passport.initialize());
-app.use(passport.session());
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', postRoutes);
 

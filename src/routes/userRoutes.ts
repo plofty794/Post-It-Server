@@ -3,14 +3,16 @@ import {
   editProfile,
   getUserData,
   getYourProfile,
-  logOut,
+  refreshToken,
   requestEmailVerificationCode,
   requestPasswordResetCode,
   resetPassword,
+  userLogin,
+  userLogout,
   userSignUp,
 } from '@controllers/userControllers';
 import { loginRateLimit, verificationCodeRequestLimiter } from '@middlewares/rateLimiters';
-import { passportAuthenticate, validateData } from '@middlewares/validationMiddleware';
+import { validateData } from '@middlewares/validationMiddleware';
 import { Router } from 'express';
 import {
   editProfilePicUrl,
@@ -20,17 +22,14 @@ import {
   userSignInSchema,
   userSignUpSchema,
 } from '@validation/schemas';
-import passport from 'passport';
 import { verifyUserSession } from '@middlewares/verifyUserSession';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 
 router.get('/me', verifyUserSession, getYourProfile);
 router.get('/user/:username', verifyUserSession, getUserData);
-router.post('/login', loginRateLimit, validateData(userSignInSchema), passportAuthenticate(passport), (req, res) => {
-  const randomId = crypto.randomUUID();
-  res.status(200).json({ token: `${req.session.passport.user}-${randomId}` });
-});
+router.post('/login', loginRateLimit, validateData(userSignInSchema), userLogin);
 router.post(
   '/password-reset-code',
   verificationCodeRequestLimiter,
@@ -46,6 +45,7 @@ router.post(
   requestEmailVerificationCode
 );
 router.post('/change-avatar', validateData(editProfilePicUrl), verifyUserSession, changeAvatar);
-router.post('/logout', logOut);
+router.post('/refresh-token/:userID', refreshToken);
+router.post('/logout/:userID', verifyUserSession, userLogout);
 router.patch('/user/edit', validateData(editProfileSchema), verifyUserSession, editProfile);
 export default router;
