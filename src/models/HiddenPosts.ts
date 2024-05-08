@@ -1,4 +1,4 @@
-import HiddenPostSchema from '@schemas/HiddenPostSchema';
+import HiddenPostSchema from '@schemas/HiddenPost';
 import UserSchema from '@schemas/UserSchema';
 
 export default {

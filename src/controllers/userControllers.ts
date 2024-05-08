@@ -1,10 +1,10 @@
 import RefreshToken from '@models/RefreshToken';
 import Users from '@models/Users';
 import { eventEmitter } from '@utils/events/events';
-import { RequestHandler } from 'express';
 import createHttpError from 'http-errors';
+import { NextFunction, Request, Response } from 'express';
 
-export const getYourProfile: RequestHandler = async (req, res, next) => {
+export const getYourProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (typeof req.user === 'undefined') {
       throw createHttpError(400, 'This resource requires a logged in user.');
@@ -16,7 +16,7 @@ export const getYourProfile: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getUserData: RequestHandler = async (req, res, next) => {
+export const getUserData = async (req: Request, res: Response, next: NextFunction) => {
   const { username } = req.params;
   try {
     const user = await Users.getUser(undefined, undefined, username);
@@ -26,7 +26,7 @@ export const getUserData: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const editProfile: RequestHandler = async (req, res, next) => {
+export const editProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (typeof req.user === 'undefined') {
       throw createHttpError(400, 'This resource requires a logged in user.');
@@ -42,7 +42,7 @@ export const editProfile: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const changeAvatar: RequestHandler = async (req, res, next) => {
+export const changeAvatar = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (typeof req.user === 'undefined') {
       throw createHttpError(400, 'This resource requires a logged in user.');
@@ -58,7 +58,7 @@ export const changeAvatar: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const userSignUp: RequestHandler = async (req, res, next) => {
+export const userSignUp = async (req: Request, res: Response, next: NextFunction) => {
   const { username, firstName, lastName, email, password, verificationCode } = req.body;
   try {
     const newUser = await Users.signUp({ firstName, lastName, username, email, password, verificationCode });
@@ -72,7 +72,7 @@ export const userSignUp: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const userLogin: RequestHandler = async (req, res, next) => {
+export const userLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   try {
     const token = await Users.logIn(email, password);
@@ -86,7 +86,7 @@ export const userLogin: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const userLogout: RequestHandler = async (req, res, next) => {
+export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
   const { userID } = req.params;
   try {
     const token = await Users.logOut(userID);
@@ -100,7 +100,7 @@ export const userLogout: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const refreshToken: RequestHandler = async (req, res, next) => {
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
   const { userID } = req.params;
   try {
     const accessToken = await RefreshToken.refreshAccessToken(userID);
@@ -115,7 +115,7 @@ export const refreshToken: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const requestEmailVerificationCode: RequestHandler = async (req, res, next) => {
+export const requestEmailVerificationCode = async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;
   try {
     const verificationCode = await Users.requestEmailVerificationCode(email);
@@ -131,7 +131,7 @@ export const requestEmailVerificationCode: RequestHandler = async (req, res, nex
   }
 };
 
-export const requestPasswordResetCode: RequestHandler = async (req, res, next) => {
+export const requestPasswordResetCode = async (req: Request, res: Response, next: NextFunction) => {
   const { email } = req.body;
 
   try {
@@ -149,7 +149,7 @@ export const requestPasswordResetCode: RequestHandler = async (req, res, next) =
   }
 };
 
-export const resetPassword: RequestHandler = async (req, res, next) => {
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password, verificationCode } = req.body;
   try {
     const user = await Users.resetPassword({ email, password, verificationCode });

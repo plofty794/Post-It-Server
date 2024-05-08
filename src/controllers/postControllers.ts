@@ -1,10 +1,10 @@
 import HiddenPosts from '@models/HiddenPosts';
 import Posts from '@models/Posts';
 import SavedPosts from '@models/SavedPosts';
-import { RequestHandler } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import createHttpError from 'http-errors';
 
-export const createPost: RequestHandler = async (req, res, next) => {
+export const createPost = async (req: Request, res: Response, next: NextFunction) => {
   const { title, body } = req.body;
   try {
     if (typeof req.user === 'undefined') {
@@ -21,7 +21,7 @@ export const createPost: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const savePost: RequestHandler = async (req, res, next) => {
+export const savePost = async (req: Request, res: Response, next: NextFunction) => {
   const { postID } = req.params;
   try {
     if (typeof req.user === 'undefined') {
@@ -38,7 +38,7 @@ export const savePost: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const unSavePost: RequestHandler = async (req, res, next) => {
+export const unSavePost = async (req: Request, res: Response, next: NextFunction) => {
   const { postID } = req.params;
   try {
     if (typeof req.user === 'undefined') {
@@ -55,7 +55,7 @@ export const unSavePost: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const hidePost: RequestHandler = async (req, res, next) => {
+export const hidePost = async (req: Request, res: Response, next: NextFunction) => {
   const { postID } = req.params;
   try {
     if (typeof req.user === 'undefined') {
@@ -72,7 +72,7 @@ export const hidePost: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const unHidePost: RequestHandler = async (req, res, next) => {
+export const unHidePost = async (req: Request, res: Response, next: NextFunction) => {
   const { postID } = req.params;
   try {
     if (typeof req.user === 'undefined') {
@@ -89,7 +89,7 @@ export const unHidePost: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getPosts: RequestHandler = async (req, res, next) => {
+export const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   const page = Number(req.params.page) ?? 1;
   const limit = 10;
   try {
@@ -107,7 +107,7 @@ export const getPosts: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getYourPosts: RequestHandler = async (req, res, next) => {
+export const getYourPosts = async (req: Request, res: Response, next: NextFunction) => {
   const page = Number(req.params.page) ?? 1;
   const limit = 10;
   try {
@@ -125,7 +125,7 @@ export const getYourPosts: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getYourSavedPosts: RequestHandler = async (req, res, next) => {
+export const getYourSavedPosts = async (req: Request, res: Response, next: NextFunction) => {
   const page = Number(req.params.page) ?? 1;
   const limit = 10;
   try {
@@ -143,7 +143,7 @@ export const getYourSavedPosts: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getYouHiddenPosts: RequestHandler = async (req, res, next) => {
+export const getYouHiddenPosts = async (req: Request, res: Response, next: NextFunction) => {
   const page = Number(req.params.page) ?? 1;
   const limit = 10;
   try {
