@@ -6,6 +6,7 @@ export const verificationCodeRequestLimiter = rateLimit({
   message: {
     error: 'Too many requests, please wait after 5 minutes and try again.',
   },
+  validate: { xForwardedForHeader: false },
 });
 
 export const loginRateLimit = rateLimit({
@@ -14,4 +15,5 @@ export const loginRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,
+  validate: { xForwardedForHeader: false },
 });
