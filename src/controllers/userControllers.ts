@@ -87,15 +87,15 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
 };
 
 export const userLogout = async (req: Request, res: Response, next: NextFunction) => {
-  const { userID } = req.params;
   try {
-    const token = await Users.logOut(userID);
+    const token = await Users.logOut(req.user);
     if (token instanceof Error) {
       throw createHttpError(400, token.message);
     } else {
       res.sendStatus(200);
     }
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };

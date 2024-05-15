@@ -38,3 +38,7 @@ export const editProfileSchema = z.object({
 export const editProfilePicUrl = z.object({
   profilePicUrl: z.string().url(),
 });
+
+export const commentSchema = z.object({
+  content: z.string().min(1, { message: 'Comment is required' }),
+});

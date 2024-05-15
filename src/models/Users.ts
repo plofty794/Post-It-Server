@@ -179,11 +179,11 @@ export default {
 
   getUser: async function (email?: string, id?: string, username?: string) {
     if (id) {
-      const user = await UserSchema.findById(id).select('-password').populate('savedPosts').exec();
+      const user = await UserSchema.findById(id).select('-password').exec();
       return user;
     }
     if (username) {
-      const user = await UserSchema.findOne({ username }).select('-password').populate('savedPosts').exec();
+      const user = await UserSchema.findOne({ username }).select('-password').exec();
       return user;
     }
     const user = await UserSchema.findOne({ email }).select('email password').exec();

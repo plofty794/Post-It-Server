@@ -13,8 +13,8 @@ const userSchema = new Schema(
     profilePicUrl: { type: String },
     password: { type: String, select: false },
     posts: [{ type: Schema.Types.ObjectId, ref: 'Posts' }],
-    savedPosts: [{ type: Schema.Types.ObjectId, ref: 'Posts' }],
-    hiddenPosts: [{ type: Schema.Types.ObjectId, ref: 'Posts' }],
+    savedPosts: [{ type: Schema.Types.ObjectId, ref: 'SavedPosts' }],
+    hiddenPosts: [{ type: Schema.Types.ObjectId, ref: 'HiddenPosts' }],
   },
   { timestamps: true }
 );

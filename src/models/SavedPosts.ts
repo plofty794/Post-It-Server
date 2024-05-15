@@ -8,7 +8,13 @@ export default {
       const savedPosts = await SavedPostSchema.find({
         savedBy: userID,
       })
-        .populate('post')
+        .populate({
+          path: 'post',
+          populate: {
+            path: 'author',
+            select: 'username profilePicUrl',
+          },
+        })
         .skip((page - 1) * limit)
         .limit(limit)
         .sort({ createdAt: 'desc', upvote: 'asc' })
@@ -32,18 +38,18 @@ export default {
         throw new Error('No post found.');
       }
 
-      await SavedPostSchema.create({
+      const savedPost = await SavedPostSchema.create({
         savedBy,
         post: postID,
       });
 
       await UserSchema.findByIdAndUpdate(savedBy, {
         $push: {
-          savedPosts: [postID],
+          savedPosts: [savedPost._id],
         },
       });
 
-      return { message: 'Post has been saved.', savedPost: post };
+      return { message: 'Post has been saved.', savedPost };
     } catch (error) {
       return error as Error;
     }
@@ -51,7 +57,7 @@ export default {
 
   unSavePost: async (unSavedBy: string, postID: string) => {
     try {
-      await SavedPostSchema.findOneAndDelete({
+      const unsavedPost = await SavedPostSchema.findOneAndDelete({
         post: postID,
         savedBy: unSavedBy,
       });
@@ -59,7 +65,7 @@ export default {
       await UserSchema.findByIdAndUpdate(unSavedBy, {
         $pull: {
           savedPosts: {
-            $in: [postID],
+            $in: [unsavedPost?._id],
           },
         },
       });

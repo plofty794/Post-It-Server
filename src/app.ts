@@ -5,6 +5,7 @@ import env from '@utils/envalid';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import commentRoutes from '@routes/commentRoutes';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', postRoutes);
+app.use('/api/v1', commentRoutes);
 
 app.get('/', async (req, res) => {
   res.json({

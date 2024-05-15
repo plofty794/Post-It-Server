@@ -51,15 +51,13 @@ export default {
 
   removeRefreshToken: async (userID: string) => {
     try {
-      const tokenExist = await RefreshTokenSchema.findOne({
+      const tokenExist = await RefreshTokenSchema.findOneAndDelete({
         user: userID,
       });
 
       if (!tokenExist) {
         throw new Error('Token not found.');
       }
-
-      await RefreshTokenSchema.findOneAndDelete({ user: userID });
 
       return true;
     } catch (error) {

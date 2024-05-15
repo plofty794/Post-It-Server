@@ -7,6 +7,13 @@ export default {
       const hiddenPosts = await HiddenPostSchema.find({
         hiddenBy: userID,
       })
+        .populate({
+          path: 'post',
+          populate: {
+            path: 'author',
+            select: 'username profilePicUrl',
+          },
+        })
         .populate('post')
         .skip((page - 1) * limit)
         .limit(limit)
@@ -25,14 +32,14 @@ export default {
 
   hidePost: async (hiddenBy: string, postID: string) => {
     try {
-      await HiddenPostSchema.create({
+      const hiddenPost = await HiddenPostSchema.create({
         hiddenBy,
         post: postID,
       });
 
       await UserSchema.findByIdAndUpdate(hiddenBy, {
         $push: {
-          hiddenPosts: [postID],
+          hiddenPosts: [hiddenPost._id],
         },
       });
 
@@ -44,7 +51,7 @@ export default {
 
   unHidePost: async (unHiddenBy: string, postID: string) => {
     try {
-      await HiddenPostSchema.findOneAndDelete({
+      const unHiddenPost = await HiddenPostSchema.findOneAndDelete({
         post: postID,
         hiddenBy: unHiddenBy,
       });
@@ -52,7 +59,7 @@ export default {
       await UserSchema.findByIdAndUpdate(unHiddenBy, {
         $pull: {
           hiddenPosts: {
-            $in: [postID],
+            $in: [unHiddenPost?._id],
           },
         },
       });

@@ -1,6 +1,8 @@
+import Downvotes from '@models/Downvotes';
 import HiddenPosts from '@models/HiddenPosts';
 import Posts from '@models/Posts';
 import SavedPosts from '@models/SavedPosts';
+import Upvotes from '@models/Upvotes';
 import { NextFunction, Request, Response } from 'express';
 import createHttpError from 'http-errors';
 
@@ -12,7 +14,7 @@ export const createPost = async (req: Request, res: Response, next: NextFunction
     }
     const newPost = await Posts.createPost(req.user, title, body);
     if (newPost instanceof Error) {
-      throw createHttpError(400, 'Error creating post.');
+      throw createHttpError(400, newPost.message);
     } else {
       res.status(201).json({ message: 'Post has been created.' });
     }
@@ -107,6 +109,23 @@ export const getPosts = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
+export const visitPost = async (req: Request, res: Response, next: NextFunction) => {
+  const { postID } = req.params;
+  try {
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const post = await Posts.getPost(postID, req.user);
+    if (post instanceof Error) {
+      throw createHttpError(400, post.message);
+    } else {
+      res.status(200).json({ post });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getYourPosts = async (req: Request, res: Response, next: NextFunction) => {
   const page = Number(req.params.page) ?? 1;
   const limit = 10;
@@ -155,6 +174,49 @@ export const getYouHiddenPosts = async (req: Request, res: Response, next: NextF
       throw createHttpError(400, hiddenPosts.message);
     } else {
       res.status(200).json({ hiddenPosts });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUpvotes = async (req: Request, res: Response, next: NextFunction) => {
+  const { postID } = req.body;
+
+  try {
+    const updateUpvote = await Upvotes.updateUpvotes(postID, req.user);
+    if (updateUpvote instanceof Error) {
+      throw createHttpError(400, updateUpvote.message);
+    } else {
+      res.status(200).json({ message: updateUpvote.message });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateDownvotes = async (req: Request, res: Response, next: NextFunction) => {
+  const { postID } = req.body;
+  try {
+    const updateDownvote = await Downvotes.updateDownvotes(postID, req.user);
+    if (updateDownvote instanceof Error) {
+      throw createHttpError(400, updateDownvote.message);
+    } else {
+      res.status(200).json({ message: updateDownvote.message });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePost = async (req: Request, res: Response, next: NextFunction) => {
+  const { postID } = req.params;
+  try {
+    const post = await Posts.deletePost(postID);
+    if (post instanceof Error) {
+      throw createHttpError(400, post.message);
+    } else {
+      res.status(200).json({ message: post.message });
     }
   } catch (error) {
     next(error);

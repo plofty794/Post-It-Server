@@ -14,4 +14,5 @@ export default cleanEnv(process.env, {
   APP_PASSWORD: str(),
   ACCESS_TOKEN_PRIVATE: str(),
   REFRESH_TOKEN_PRIVATE: str(),
+  MONGODB_COMPASS_URI: url()
 });

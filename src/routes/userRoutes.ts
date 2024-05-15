@@ -46,6 +46,7 @@ router.post(
 );
 router.post('/change-avatar', validateData(editProfilePicUrl), verifyUserSession, changeAvatar);
 router.post('/refresh-token/:userID', refreshToken);
-router.post('/logout/:userID', verifyUserSession, userLogout);
 router.patch('/user/edit', validateData(editProfileSchema), verifyUserSession, editProfile);
+router.delete('/logout', verifyUserSession, userLogout);
+
 export default router;
