@@ -1,19 +1,43 @@
 import DownvotePostSchema from '@schemas/DownvoteSchema';
+import NotificationSchema from '@schemas/NotificationSchema';
 import PostSchema from '@schemas/PostSchema';
 import UpvotePostSchema from '@schemas/UpvoteSchema';
+import { eventEmitter } from '@utils/events/events';
 
 export default {
   updateUpvotes: async (postID: string, upvotedBy: string) => {
     try {
+      const post = await PostSchema.findById(postID);
+
+      if (!post) {
+        throw new Error("Error down voting post. Either upvote is currently zero or post doesn't exist.");
+      }
+
+      const isNotAuthorUpvote = post.author.toString() !== upvotedBy;
+
       const upvoteExist = await UpvotePostSchema.findOneAndDelete({
         post: postID,
         upvotedBy,
       });
 
-      const post = await PostSchema.findById(postID);
+      if (upvoteExist) {
+        await Promise.all([
+          post?.updateOne({
+            $pull: {
+              upvote: upvoteExist._id,
+            },
+            $inc: {
+              upvoteCount: -1,
+            },
+          }),
+          NotificationSchema.deleteOne({
+            post: postID,
+            sender: upvotedBy,
+            type: 'postUpvote',
+          }),
+        ]);
 
-      if (!post) {
-        throw new Error("Error down voting post. Either upvote is currently zero or post doesn't exist.");
+        return { message: 'Upvote updated.' };
       }
 
       const downvoteExist = await DownvotePostSchema.findOneAndDelete({
@@ -21,36 +45,46 @@ export default {
         downvotedBy: upvotedBy,
       });
 
-      await post.updateOne({
-        $pull: {
-          downvote: downvoteExist?._id,
-        },
+      if (downvoteExist) {
+        await Promise.all([
+          post.updateOne({
+            $pull: {
+              downvote: downvoteExist._id,
+            },
+          }),
+          NotificationSchema.deleteOne({
+            post: postID,
+            sender: upvotedBy,
+            type: 'postDownvote',
+          }),
+        ]);
+      }
+
+      const upvote = await UpvotePostSchema.create({
+        post: postID,
+        upvotedBy,
       });
 
-      if (upvoteExist) {
-        await post?.updateOne({
-          $pull: {
-            upvote: upvoteExist._id,
-          },
-          $inc: {
-            upvoteCount: -1,
-          },
-        });
-      } else {
-        const upvote = await UpvotePostSchema.create({
+      isNotAuthorUpvote &&
+        (await NotificationSchema.create({
+          type: 'postUpvote',
+          data: upvote._id,
+          sender: upvotedBy,
+          recipient: post.author,
           post: postID,
-          upvotedBy,
-        });
+          docModel: 'Upvotes',
+        }));
 
-        await post?.updateOne({
-          $inc: {
-            upvoteCount: 1,
-          },
-          $push: {
-            upvote: [upvote._id],
-          },
-        });
-      }
+      isNotAuthorUpvote && eventEmitter.emit('new-notification', post.author.toString());
+
+      await post?.updateOne({
+        $inc: {
+          upvoteCount: 1,
+        },
+        $push: {
+          upvote: [upvote._id],
+        },
+      });
 
       return { message: 'Upvote updated.' };
     } catch (error) {

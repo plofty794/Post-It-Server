@@ -1,4 +1,4 @@
-import HiddenPostSchema from '@schemas/HiddenPost';
+import HiddenPostSchema from '@schemas/HiddenPostSchema';
 import PostSchema from '@schemas/PostSchema';
 import UserSchema from '@schemas/UserSchema';
 import { isValidObjectId } from 'mongoose';

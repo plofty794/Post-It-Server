@@ -15,6 +15,8 @@ const transport = createTransport({
 
 export const eventEmitter = new EventEmitter();
 
+eventEmitter.setMaxListeners(0);
+
 eventEmitter.on('requestVerificationCode', async (toEmail: string, verificationCode: string) => {
   await transport.sendMail({
     from: 'onboarding@resend.dev',

@@ -2,6 +2,7 @@ import {
   changeAvatar,
   editProfile,
   getUserData,
+  getYourNotifications,
   getYourProfile,
   refreshToken,
   requestEmailVerificationCode,
@@ -23,12 +24,12 @@ import {
   userSignUpSchema,
 } from '@validation/schemas';
 import { verifyUserSession } from '@middlewares/verifyUserSession';
-import jwt from 'jsonwebtoken';
 
 const router = Router();
 
 router.get('/me', verifyUserSession, getYourProfile);
 router.get('/user/:username', verifyUserSession, getUserData);
+router.get('/user/notifications/:page', verifyUserSession, getYourNotifications);
 router.post('/login', loginRateLimit, validateData(userSignInSchema), userLogin);
 router.post(
   '/password-reset-code',

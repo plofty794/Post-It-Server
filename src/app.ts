@@ -6,6 +6,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import commentRoutes from '@routes/commentRoutes';
+import { sseStart } from '@utils/sseStart';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/api/v1/new-notification', sseStart);
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', postRoutes);
 app.use('/api/v1', commentRoutes);
@@ -35,7 +37,7 @@ app.use((_, res) => {
 app.use(errorHandler);
 
 mongoose
-  .connect(env.MONGODB_URI)
+  .connect(env.MONGODB_COMPASS_URI)
   .then(() => {
     console.log('Connected to database');
     app.listen(env.PORT, () => {

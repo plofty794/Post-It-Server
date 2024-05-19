@@ -1,5 +1,7 @@
 import CommentSchema from '@schemas/CommentSchema';
+import NotificationSchema from '@schemas/NotificationSchema';
 import PostSchema from '@schemas/PostSchema';
+import { eventEmitter } from '@utils/events/events';
 
 export default {
   getComments: async (postID: string, page: number, limit: number) => {
@@ -15,15 +17,7 @@ export default {
           {
             path: 'post',
           },
-          {
-            path: 'replies',
-            populate: {
-              path: 'author',
-              select: 'username profilePicUrl',
-            },
-          },
         ])
-
         .skip((page - 1) * limit)
         .limit(limit)
         .sort({ createdAt: 'desc', upvote: 'asc' })
@@ -47,12 +41,26 @@ export default {
         throw new Error('No post found.');
       }
 
+      const isNotAuthorComment = post.author.toString() !== author;
+
       if (commentID == null) {
         const newComment = await CommentSchema.create({
           post: postID,
           content,
           author,
         });
+
+        isNotAuthorComment &&
+          (await NotificationSchema.create({
+            type: 'comment',
+            data: newComment._id,
+            sender: author,
+            recipient: post.author,
+            post: postID,
+            docModel: 'Comments',
+          }));
+
+        isNotAuthorComment && eventEmitter.emit('new-notification', post.author.toString());
 
         await post.updateOne({
           $push: {
@@ -69,6 +77,8 @@ export default {
         throw new Error('No comment found.');
       }
 
+      const isNotAuthorParentComment = comment.author.toString() !== author;
+
       const reply = await CommentSchema.create({
         post: postID,
         content,
@@ -76,17 +86,30 @@ export default {
         parentComment: comment._id,
       });
 
-      await comment.updateOne({
-        $push: {
-          replies: [reply._id],
-        },
-      });
+      await Promise.all([
+        comment.updateOne({
+          $push: {
+            replies: [reply._id],
+          },
+        }),
+        post.updateOne({
+          $push: {
+            comments: [reply._id],
+          },
+        }),
+      ]);
 
-      await post.updateOne({
-        $push: {
-          comments: [reply._id],
-        },
-      });
+      isNotAuthorParentComment &&
+        (await NotificationSchema.create({
+          type: 'reply',
+          data: reply._id,
+          sender: author,
+          recipient: comment.author,
+          post: postID,
+          docModel: 'Comments',
+        }));
+
+      isNotAuthorParentComment && eventEmitter.emit('new-notification', comment.author.toString());
 
       return { message: 'Reply has been created.' };
     } catch (error) {

@@ -4,7 +4,7 @@ import DownvotePostSchema from './DownvoteSchema';
 import CommentSchema from './CommentSchema';
 import UserSchema from './UserSchema';
 import SavedPostSchema from './SavedPostSchema';
-import HiddenPostSchema from './HiddenPost';
+import HiddenPostSchema from './HiddenPostSchema';
 
 const postSchema = new Schema(
   {

@@ -67,7 +67,7 @@ export const hidePost = async (req: Request, res: Response, next: NextFunction) 
     if (result instanceof Error) {
       throw createHttpError(400, result.message);
     } else {
-      res.status(200).json({ message: result.message });
+      res.status(200).json({ message: result.message, hiddenPost: result.hiddenPost });
     }
   } catch (error) {
     next(error);

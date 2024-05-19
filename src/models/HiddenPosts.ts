@@ -1,4 +1,4 @@
-import HiddenPostSchema from '@schemas/HiddenPost';
+import HiddenPostSchema from '@schemas/HiddenPostSchema';
 import UserSchema from '@schemas/UserSchema';
 
 export default {
@@ -14,7 +14,6 @@ export default {
             select: 'username profilePicUrl',
           },
         })
-        .populate('post')
         .skip((page - 1) * limit)
         .limit(limit)
         .sort({ createdAt: 'desc', upvote: 'asc' })
@@ -43,7 +42,15 @@ export default {
         },
       });
 
-      return { message: 'Post has been hidden.' };
+      await hiddenPost.populate({
+        path: 'post',
+        populate: {
+          path: 'author',
+          select: 'username profilePicUrl',
+        },
+      });
+
+      return { message: 'Post has been hidden.', hiddenPost };
     } catch (error) {
       return error as Error;
     }

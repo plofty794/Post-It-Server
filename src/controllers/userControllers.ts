@@ -3,6 +3,7 @@ import Users from '@models/Users';
 import { eventEmitter } from '@utils/events/events';
 import createHttpError from 'http-errors';
 import { NextFunction, Request, Response } from 'express';
+import Notifications from '@models/Notifications';
 
 export const getYourProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -21,6 +22,24 @@ export const getUserData = async (req: Request, res: Response, next: NextFunctio
   try {
     const user = await Users.getUser(undefined, undefined, username);
     res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getYourNotifications = async (req: Request, res: Response, next: NextFunction) => {
+  const page = Number(req.params.page) ?? 1;
+  const limit = 10;
+  try {
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const notifications = await Notifications.getNotifications(req.user, page, limit);
+    if (notifications instanceof Error) {
+      throw createHttpError(400, notifications.message);
+    } else {
+      res.status(200).json({ notifications });
+    }
   } catch (error) {
     next(error);
   }
