@@ -45,6 +45,23 @@ export const getYourNotifications = async (req: Request, res: Response, next: Ne
   }
 };
 
+export const readNotification = async (req: Request, res: Response, next: NextFunction) => {
+  const { notificationID } = req.params;
+  try {
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const result = await Notifications.readNotification(req.user, notificationID);
+    if (result instanceof Error) {
+      throw createHttpError(400, result.message);
+    } else {
+      res.status(200).json({ result });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const editProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (typeof req.user === 'undefined') {

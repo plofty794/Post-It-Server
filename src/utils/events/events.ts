@@ -19,7 +19,6 @@ eventEmitter.setMaxListeners(0);
 
 eventEmitter.on('requestVerificationCode', async (toEmail: string, verificationCode: string) => {
   await transport.sendMail({
-    from: 'onboarding@resend.dev',
     to: toEmail,
     subject: 'Verify you email address',
     html: verificationCodeEmail(verificationCode),
@@ -28,7 +27,6 @@ eventEmitter.on('requestVerificationCode', async (toEmail: string, verificationC
 
 eventEmitter.on('requestPasswordResetCode', async (toEmail: string, passwordResetCode: string) => {
   await transport.sendMail({
-    from: 'onboarding@resend.dev',
     to: toEmail,
     subject: 'Forgot you password?',
     html: passwordResetEmail(passwordResetCode),
@@ -37,7 +35,6 @@ eventEmitter.on('requestPasswordResetCode', async (toEmail: string, passwordRese
 
 eventEmitter.on('passwordResetSuccess', async (toEmail: string, passwordResetCode: string) => {
   await transport.sendMail({
-    from: 'onboarding@resend.dev',
     to: toEmail,
     subject: 'Success!',
     html: passwordResetEmailSuccess(),

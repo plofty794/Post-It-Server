@@ -30,4 +30,36 @@ export default {
       return error as Error;
     }
   },
+
+  readNotification: async (userID: string, notificationID: string) => {
+    try {
+      const notificationAlreadyRead = await NotificationSchema.findOne({
+        _id: notificationID,
+        recipient: userID,
+        read: true,
+      });
+
+      if (notificationAlreadyRead) {
+        throw new Error('Notification already read.');
+      }
+
+      const notification = await NotificationSchema.findOneAndUpdate(
+        {
+          _id: notificationID,
+          recipient: userID,
+        },
+        {
+          read: true,
+        }
+      );
+
+      if (!notification) {
+        throw new Error('No notification found.');
+      }
+
+      return { message: 'Notification has been read.' };
+    } catch (error) {
+      return error as Error;
+    }
+  },
 };

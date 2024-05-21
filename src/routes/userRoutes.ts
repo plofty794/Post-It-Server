@@ -11,6 +11,7 @@ import {
   userLogin,
   userLogout,
   userSignUp,
+  readNotification,
 } from '@controllers/userControllers';
 import { loginRateLimit, verificationCodeRequestLimiter } from '@middlewares/rateLimiters';
 import { validateData } from '@middlewares/validationMiddleware';
@@ -48,6 +49,7 @@ router.post(
 router.post('/change-avatar', validateData(editProfilePicUrl), verifyUserSession, changeAvatar);
 router.post('/refresh-token/:userID', refreshToken);
 router.patch('/user/edit', validateData(editProfileSchema), verifyUserSession, editProfile);
+router.patch('/user/read-notification/:notificationID', verifyUserSession, readNotification);
 router.delete('/logout', verifyUserSession, userLogout);
 
 export default router;
