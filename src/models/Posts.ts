@@ -36,6 +36,23 @@ export default {
     }
   },
 
+  editPost: async (postID: string, title: string, body: string) => {
+    try {
+      const post = await PostSchema.findByIdAndUpdate(postID, {
+        title,
+        body,
+      });
+
+      if (!post) {
+        throw new Error('Post not found.');
+      }
+
+      return { message: 'Post has been edited.' };
+    } catch (error) {
+      return error as Error;
+    }
+  },
+
   deletePost: async (postID: string) => {
     try {
       const post = await PostSchema.findById(postID);

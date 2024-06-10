@@ -198,6 +198,19 @@ export default {
         throw new Error('No user found.');
       }
 
+      if (reqBody.username) {
+        const escapedUsername = reqBody.username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const usernameAlreadyTaken = await UserSchema.findOne({
+          username: {
+            $regex: new RegExp('^' + escapedUsername + '$', 'i'),
+          },
+        });
+
+        if (usernameAlreadyTaken) {
+          throw new Error('Username is already taken.');
+        }
+      }
+
       await UserSchema.findByIdAndUpdate(userID, {
         ...reqBody,
       });

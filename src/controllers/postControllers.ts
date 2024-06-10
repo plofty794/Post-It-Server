@@ -181,7 +181,7 @@ export const getYouHiddenPosts = async (req: Request, res: Response, next: NextF
 };
 
 export const updateUpvotes = async (req: Request, res: Response, next: NextFunction) => {
-  const { postID } = req.body;
+  const { postID } = req.params;
 
   try {
     const updateUpvote = await Upvotes.updateUpvotes(postID, req.user);
@@ -196,13 +196,28 @@ export const updateUpvotes = async (req: Request, res: Response, next: NextFunct
 };
 
 export const updateDownvotes = async (req: Request, res: Response, next: NextFunction) => {
-  const { postID } = req.body;
+  const { postID } = req.params;
   try {
     const updateDownvote = await Downvotes.updateDownvotes(postID, req.user);
     if (updateDownvote instanceof Error) {
       throw createHttpError(400, updateDownvote.message);
     } else {
       res.status(200).json({ message: updateDownvote.message });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editPost = async (req: Request, res: Response, next: NextFunction) => {
+  const { postID } = req.params;
+  const { title, body } = req.body;
+  try {
+    const post = await Posts.editPost(postID, title, body);
+    if (post instanceof Error) {
+      throw createHttpError(400, post.message);
+    } else {
+      res.status(200).json({ message: post.message });
     }
   } catch (error) {
     next(error);

@@ -50,20 +50,14 @@ export default {
         upvotedBy: downvotedBy,
       });
 
-      if (upvoteExist) {
-        const downvote = await DownvoteSchema.create({
-          post: postID,
-          downvotedBy,
-        });
+      const downvote = await DownvoteSchema.create({
+        post: postID,
+        downvotedBy,
+      });
 
+      if (upvoteExist) {
         await Promise.all([
           post.updateOne({
-            $inc: {
-              upvoteCount: -1,
-            },
-            $push: {
-              downvote: [downvote._id],
-            },
             $pull: {
               upvote: upvoteExist._id,
             },
@@ -87,6 +81,15 @@ export default {
 
         isNotAuthorDownvote && eventEmitter.emit('new-notification', post.author.toString());
       }
+
+      await post.updateOne({
+        $inc: {
+          upvoteCount: -1,
+        },
+        $push: {
+          downvote: [downvote._id],
+        },
+      });
 
       return { message: 'Downvote updated.' };
     } catch (error) {

@@ -45,6 +45,11 @@ export default {
         downvotedBy: upvotedBy,
       });
 
+      const upvote = await UpvotePostSchema.create({
+        post: postID,
+        upvotedBy,
+      });
+
       if (downvoteExist) {
         await Promise.all([
           post.updateOne({
@@ -60,11 +65,6 @@ export default {
         ]);
       }
 
-      const upvote = await UpvotePostSchema.create({
-        post: postID,
-        upvotedBy,
-      });
-
       isNotAuthorUpvote &&
         (await NotificationSchema.create({
           type: 'postUpvote',
@@ -77,7 +77,7 @@ export default {
 
       isNotAuthorUpvote && eventEmitter.emit('new-notification', post.author.toString());
 
-      await post?.updateOne({
+      await post.updateOne({
         $inc: {
           upvoteCount: 1,
         },

@@ -28,28 +28,28 @@ import { verifyUserSession } from '@middlewares/verifyUserSession';
 
 const router = Router();
 
-router.get('/me', verifyUserSession, getYourProfile);
-router.get('/user/:username', verifyUserSession, getUserData);
-router.get('/user/notifications/:page', verifyUserSession, getYourNotifications);
-router.post('/login', loginRateLimit, validateData(userSignInSchema), userLogin);
+router.get('/users/me', verifyUserSession, getYourProfile);
+router.get('/users/user/:username', verifyUserSession, getUserData);
+router.get('/users/user/notifications/:page', verifyUserSession, getYourNotifications);
+router.post('/users/login', loginRateLimit, validateData(userSignInSchema), userLogin);
 router.post(
-  '/password-reset-code',
+  '/users/password-reset-code',
   verificationCodeRequestLimiter,
   validateData(requestVerificationCodeSchema),
   requestPasswordResetCode
 );
-router.post('/reset-password', validateData(resetPasswordSchema), resetPassword);
-router.post('/sign-up', validateData(userSignUpSchema), userSignUp);
+router.post('/users/reset-password', validateData(resetPasswordSchema), resetPassword);
+router.post('/users/sign-up', validateData(userSignUpSchema), userSignUp);
 router.post(
-  '/verification-code',
+  '/users/verification-code',
   verificationCodeRequestLimiter,
   validateData(requestVerificationCodeSchema),
   requestEmailVerificationCode
 );
-router.post('/change-avatar', validateData(editProfilePicUrl), verifyUserSession, changeAvatar);
-router.post('/refresh-token/:userID', refreshToken);
-router.patch('/user/edit', validateData(editProfileSchema), verifyUserSession, editProfile);
-router.patch('/user/read-notification/:notificationID', verifyUserSession, readNotification);
-router.delete('/logout', verifyUserSession, userLogout);
+router.post('/users/change-avatar', validateData(editProfilePicUrl), verifyUserSession, changeAvatar);
+router.post('/users/refresh-token/:userID', refreshToken);
+router.patch('/users/user/edit', validateData(editProfileSchema), verifyUserSession, editProfile);
+router.patch('/users/user/read-notification/:notificationID', verifyUserSession, readNotification);
+router.delete('/users/logout', verifyUserSession, userLogout);
 
 export default router;
