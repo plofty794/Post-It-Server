@@ -5,6 +5,32 @@ import UpvotePostSchema from '@schemas/UpvoteSchema';
 import { eventEmitter } from '@utils/events/events';
 
 export default {
+  getYourPostUpvotes: async (userID: string, page: number, limit: number) => {
+    try {
+      const postUpvotes = await UpvotePostSchema.find({
+        upvotedBy: userID,
+      })
+        .populate([
+          {
+            path: 'post',
+            populate: 'author upvote',
+          },
+        ])
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: 'desc', upvote: 'asc' })
+        .exec();
+
+      if (!postUpvotes.length) {
+        throw new Error("You've reached the end.");
+      }
+
+      return postUpvotes;
+    } catch (error) {
+      return error as Error;
+    }
+  },
+
   updateUpvotes: async (postID: string, upvotedBy: string) => {
     try {
       const post = await PostSchema.findById(postID);
@@ -45,11 +71,6 @@ export default {
         downvotedBy: upvotedBy,
       });
 
-      const upvote = await UpvotePostSchema.create({
-        post: postID,
-        upvotedBy,
-      });
-
       if (downvoteExist) {
         await Promise.all([
           post.updateOne({
@@ -64,6 +85,11 @@ export default {
           }),
         ]);
       }
+
+      const upvote = await UpvotePostSchema.create({
+        post: postID,
+        upvotedBy,
+      });
 
       isNotAuthorUpvote &&
         (await NotificationSchema.create({
@@ -86,7 +112,14 @@ export default {
         },
       });
 
-      return { message: 'Upvote updated.' };
+      await upvote.populate([
+        {
+          path: 'post',
+          populate: 'author upvote',
+        },
+      ]);
+
+      return { message: 'Upvote updated.', upvote };
     } catch (error) {
       return error as Error;
     }

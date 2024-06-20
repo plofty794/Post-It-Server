@@ -1,5 +1,7 @@
 import {
   createComment,
+  deleteComment,
+  editComment,
   getComment,
   showPostComments,
   showYourPostComments,
@@ -19,5 +21,7 @@ router.get('/comments/:postID/:page', verifyUserSession, showPostComments);
 router.post('/comments/create-comment/:postID', validateData(commentSchema), verifyUserSession, createComment);
 router.post('/comments/upvote/:commentID', verifyUserSession, updateCommentUpvotes);
 router.post('/comments/downvote/:commentID', verifyUserSession, updateCommentDownvotes);
+router.patch('/comments/edit-comment/:commentID', verifyUserSession, validateData(commentSchema), editComment);
+router.delete('/comments/delete-comment/:commentID', verifyUserSession, deleteComment);
 
 export default router;

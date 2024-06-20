@@ -111,3 +111,32 @@ export const updateCommentDownvotes = async (req: Request, res: Response, next: 
     next(error);
   }
 };
+
+export const editComment = async (req: Request, res: Response, next: NextFunction) => {
+  const { commentID } = req.params;
+  const { content } = req.body;
+  try {
+    const editedComment = await Comments.editComment(commentID, content);
+    if (editedComment instanceof Error) {
+      throw createHttpError(400, editedComment.message);
+    } else {
+      res.status(200).json({ message: editedComment.message });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteComment = async (req: Request, res: Response, next: NextFunction) => {
+  const { commentID } = req.params;
+  try {
+    const comment = await Comments.deleteComment(commentID);
+    if (comment instanceof Error) {
+      throw createHttpError(400, comment.message);
+    } else {
+      res.status(200).json({ message: comment.message });
+    }
+  } catch (error) {
+    next(error);
+  }
+};

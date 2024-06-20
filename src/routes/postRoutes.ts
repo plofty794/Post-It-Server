@@ -4,6 +4,8 @@ import {
   editPost,
   getPosts,
   getYouHiddenPosts,
+  getYourPostDownvotes,
+  getYourPostUpvotes,
   getYourPosts,
   getYourSavedPosts,
   hidePost,
@@ -22,6 +24,8 @@ import { Router } from 'express';
 const router = Router();
 
 router.get('/posts/:page', verifyUserSession, getPosts);
+router.get('/posts/upvotes/:page', verifyUserSession, getYourPostUpvotes);
+router.get('/posts/downvotes/:page', verifyUserSession, getYourPostDownvotes);
 router.get('/posts/post/:postID', verifyUserSession, visitPost);
 router.get('/posts/your-posts/:page', verifyUserSession, getYourPosts);
 router.get('/posts/your-saved-posts/:page', verifyUserSession, getYourSavedPosts);

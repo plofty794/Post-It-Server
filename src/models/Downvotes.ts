@@ -5,6 +5,32 @@ import NotificationSchema from '@schemas/NotificationSchema';
 import { eventEmitter } from '@utils/events/events';
 
 export default {
+  getYourPostDownvotes: async (userID: string, page: number, limit: number) => {
+    try {
+      const postDownvotes = await DownvoteSchema.find({
+        downvotedBy: userID,
+      })
+        .populate([
+          {
+            path: 'post',
+            populate: 'author downvote',
+          },
+        ])
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: 'desc', upvote: 'asc' })
+        .exec();
+
+      if (!postDownvotes.length) {
+        throw new Error("You've reached the end.");
+      }
+
+      return postDownvotes;
+    } catch (error) {
+      return error as Error;
+    }
+  },
+
   updateDownvotes: async (postID: string, downvotedBy: string) => {
     try {
       const post = await PostSchema.findOne({
@@ -91,7 +117,14 @@ export default {
         },
       });
 
-      return { message: 'Downvote updated.' };
+      await downvote.populate([
+        {
+          path: 'post',
+          populate: 'author downvote',
+        },
+      ]);
+
+      return { message: 'Downvote updated.', downvote};
     } catch (error) {
       return error as Error;
     }

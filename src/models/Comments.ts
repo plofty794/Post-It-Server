@@ -315,4 +315,34 @@ export default {
       return error as Error;
     }
   },
+
+  editComment: async (commentID: string, content: string) => {
+    try {
+      const editedComment = await CommentSchema.findByIdAndUpdate(commentID, {
+        content,
+      });
+
+      if (!editedComment) {
+        throw new Error('Comment not found.');
+      }
+
+      return { message: 'Comment has been edited.' };
+    } catch (error) {
+      return error as Error;
+    }
+  },
+
+  deleteComment: async (commentID: string) => {
+    try {
+      const comment = await CommentSchema.findByIdAndDelete(commentID);
+
+      if (!comment) {
+        throw new Error('Comment not found.');
+      }
+
+      return { message: 'Comment has been deleted.' };
+    } catch (error) {
+      return error as Error;
+    }
+  },
 };

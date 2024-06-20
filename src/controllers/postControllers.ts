@@ -126,6 +126,42 @@ export const visitPost = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
+export const getYourPostUpvotes = async (req: Request, res: Response, next: NextFunction) => {
+  const page = Number(req.params.page) ?? 1;
+  const limit = 10;
+  try {
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const postUpvotes = await Upvotes.getYourPostUpvotes(req.user, page, limit);
+    if (postUpvotes instanceof Error) {
+      throw createHttpError(400, postUpvotes.message);
+    } else {
+      res.status(200).json({ postUpvotes });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getYourPostDownvotes = async (req: Request, res: Response, next: NextFunction) => {
+  const page = Number(req.params.page) ?? 1;
+  const limit = 10;
+  try {
+    if (typeof req.user === 'undefined') {
+      throw createHttpError(400, 'This resource requires a logged in user.');
+    }
+    const postDownvotes = await Downvotes.getYourPostDownvotes(req.user, page, limit);
+    if (postDownvotes instanceof Error) {
+      throw createHttpError(400, postDownvotes.message);
+    } else {
+      res.status(200).json({ postDownvotes });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getYourPosts = async (req: Request, res: Response, next: NextFunction) => {
   const page = Number(req.params.page) ?? 1;
   const limit = 10;
@@ -188,7 +224,7 @@ export const updateUpvotes = async (req: Request, res: Response, next: NextFunct
     if (updateUpvote instanceof Error) {
       throw createHttpError(400, updateUpvote.message);
     } else {
-      res.status(200).json({ message: updateUpvote.message });
+      res.status(200).json({ message: updateUpvote.message, upvotedPost: updateUpvote.upvote });
     }
   } catch (error) {
     next(error);
@@ -202,7 +238,7 @@ export const updateDownvotes = async (req: Request, res: Response, next: NextFun
     if (updateDownvote instanceof Error) {
       throw createHttpError(400, updateDownvote.message);
     } else {
-      res.status(200).json({ message: updateDownvote.message });
+      res.status(200).json({ message: updateDownvote.message, downvotedPost: updateDownvote.downvote });
     }
   } catch (error) {
     next(error);

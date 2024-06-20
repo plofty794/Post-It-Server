@@ -4,6 +4,7 @@ import { eventEmitter } from '@utils/events/events';
 import createHttpError from 'http-errors';
 import { NextFunction, Request, Response } from 'express';
 import Notifications from '@models/Notifications';
+import Upvotes from '@models/Upvotes';
 
 export const getYourProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {

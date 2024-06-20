@@ -5,6 +5,7 @@ import CommentSchema from './CommentSchema';
 import UserSchema from './UserSchema';
 import SavedPostSchema from './SavedPostSchema';
 import HiddenPostSchema from './HiddenPostSchema';
+import NotificationSchema from './NotificationSchema';
 
 const postSchema = new Schema(
   {
@@ -30,48 +31,30 @@ const postSchema = new Schema(
 postSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
   try {
     const doc = await this.model.findOne(this.getFilter());
-    const savedPost = await SavedPostSchema.findOne({
+    const savedPost = await SavedPostSchema.findOneAndDelete({
       post: doc._id,
     });
-
-    const hiddenPost = await HiddenPostSchema.findOne({
+    const hiddenPost = await HiddenPostSchema.findOneAndDelete({
       post: doc._id,
     });
 
     await Promise.all([
-      CommentSchema.deleteMany({
-        _id: {
-          $in: doc.comments,
-        },
-      }),
-      UpvotePostSchema.deleteMany({
-        _id: {
-          $in: doc.upvote,
-        },
-      }),
-      DownvotePostSchema.deleteMany({
-        _id: {
-          $in: doc.downvote,
-        },
-      }),
-      SavedPostSchema.deleteOne({
+      NotificationSchema.deleteMany({
         post: doc._id,
       }),
-      HiddenPostSchema.deleteOne({
+      CommentSchema.deleteMany({
+        post: doc._id,
+      }),
+      UpvotePostSchema.deleteMany({
+        post: doc._id,
+      }),
+      DownvotePostSchema.deleteMany({
         post: doc._id,
       }),
       UserSchema.findByIdAndUpdate(doc.author, {
         $pull: {
           posts: doc._id,
-        },
-      }),
-      UserSchema.findByIdAndUpdate(doc.author, {
-        $pull: {
           savedPosts: savedPost?._id,
-        },
-      }),
-      UserSchema.findByIdAndUpdate(doc.author, {
-        $pull: {
           hiddenPosts: hiddenPost?._id,
         },
       }),

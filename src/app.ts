@@ -37,7 +37,7 @@ app.use((_, res) => {
 app.use(errorHandler);
 
 mongoose
-  .connect(env.MONGODB_URI)
+  .connect(env.MONGODB_COMPASS_URI)
   .then(() => {
     console.log('Connected to database');
     app.listen(env.PORT, () => {
